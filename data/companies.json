@@ -1,0 +1,48 @@
+{
+  "companies": {
+    "nestle": {
+      "name": "Nestlé",
+      "id": "nestle",
+      "reason": "Concerns regarding water privatization and supply chain ethics.",
+      "brands": [
+        "digiorno",
+        "san pellegrino",
+        "toll house",
+        "nespresso",
+        "kitkat",
+        "purina",
+        "gerber",
+        "perrier",
+        "stouffer's",
+        "hot pockets"
+      ]
+    },
+    "unilever": {
+      "name": "Unilever",
+      "id": "unilever",
+      "reason": "Generic large conglomerate avoidance.",
+      "brands": [
+        "dove",
+        "ben & jerry's",
+        "hellmann's",
+        "axe",
+        "lipton",
+        "vaseline"
+      ]
+    },
+    "pepsico": {
+      "name": "PepsiCo",
+      "id": "pepsico",
+      "reason": "Sugary drinks market dominance.",
+      "brands": [
+        "pepsi",
+        "lays",
+        "gatorade",
+        "tropicana",
+        "quaker",
+        "doritos",
+        "cheetos"
+      ]
+    }
+  }
+}

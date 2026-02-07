@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Vinegar - Ethical Shopping Helper",
+  "version": "1.0.0",
+  "description": "Avoid monopolies and find ethical alternatives while you shop.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.amazon.com/*",
+    "*://*.amazon.co.uk/*",
+    "*://*.walmart.com/*",
+    "*://*.target.com/*"
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.amazon.com/*",
+        "*://*.amazon.co.uk/*",
+        "*://*.walmart.com/*",
+        "*://*.target.com/*"
+      ],
+      "js": ["src/utils/brand_detector.js", "src/content/content_script.js"],
+      "css": ["src/content/styles.css"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
