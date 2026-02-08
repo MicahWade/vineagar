@@ -3,6 +3,12 @@
   "name": "Vinegar - Ethical Shopping Helper",
   "version": "1.0.0",
   "description": "Avoid monopolies and find ethical alternatives while you shop.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "vinegar@micahwade.com",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": [
     "storage",
     "activeTab",
