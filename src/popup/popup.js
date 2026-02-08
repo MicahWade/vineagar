@@ -4,9 +4,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   try {
     // Load Company Data
-    const dataUrl = chrome.runtime.getURL('data/companies.json');
-    const response = await fetch(dataUrl);
-    if (!response.ok) throw new Error('Failed to fetch companies.json');
+    let response;
+    try {
+      response = await fetch(chrome.runtime.getURL('data/companies.json'));
+    } catch (e) {
+      console.warn('getURL fetch failed, trying relative path...');
+      response = await fetch('../../data/companies.json');
+    }
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     
     const data = await response.json();
     const companies = data.companies;
@@ -60,6 +66,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   } catch (error) {
     console.error('Vinegar Popup Error:', error);
-    container.innerHTML = '<p style="color:red">Error loading brand data.</p>';
+    container.innerHTML = `<p style="color:red">Error loading data:<br>${error.message}</p>`;
   }
 });
