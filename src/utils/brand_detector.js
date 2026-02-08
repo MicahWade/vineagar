@@ -36,36 +36,40 @@ class BrandDetector {
     if (!this.isLoaded || !text) return null;
 
     const lowerText = text.toLowerCase();
+    console.groupCollapsed(`Vinegar Debug: Checking "${text.substring(0, 20)}..."`);
     
     // Iterate through all companies in the database
     for (const [key, company] of Object.entries(this.companies)) {
-      // If the user hasn't blocked this company, skip it
-      // (If blockedIds is empty/null, we assume all defined companies are flagged for now,
-      // or we strict check. Let's assume strict check against user preferences).
       if (blockedIds && !blockedIds.includes(company.id)) {
         continue;
       }
 
       // Check specific brands owned by the company
       for (const brand of company.brands) {
-        // robust matching: normalize both to lowercase
         const cleanBrand = brand.toLowerCase().trim();
         
-        // MVP: Simple inclusion check (e.g. does "Pepsi Soda" contain "pepsi")
-        // This is safer than regex for now to avoid boundary issues with punctuation
+        // Log "pepsi" vs "pepsi soda pop..."
+        // console.log(`Comparing "${cleanBrand}" against text...`);
+
         if (lowerText.includes(cleanBrand)) {
-             // specific check to avoid "grape" matching "ape"
-             // only match if surrounded by space or start/end of string
-             const regex = new RegExp(`(^|\s|\W)${cleanBrand}($|\s|\W)`, 'i');
+             console.log(`> Potential match found: "${cleanBrand}" in text.`);
+             
+             const regex = new RegExp(`(^|\\s|\\W)${cleanBrand}($|\\s|\\W)`, 'i');
              if (regex.test(lowerText)) {
+                console.log(`>> CONFIRMED match via Regex!`);
+                console.groupEnd();
                 return {
                     matchedBrand: brand,
                     parentCompany: company
                 };
+             } else {
+                console.log(`>> Regex failed for "${cleanBrand}". (Boundary issue?)`);
              }
         }
       }
     }
+    console.log("No match found.");
+    console.groupEnd();
     return null;
   }
 }
