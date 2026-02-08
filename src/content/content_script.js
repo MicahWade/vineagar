@@ -39,75 +39,66 @@
   }
 
   // DEBUG: Visual confirmation that the script is running
-  function showDebugToast(text) {
+  function showDebugToast(text, status) {
     const toast = document.createElement('div');
     toast.style.position = 'fixed';
     toast.style.bottom = '10px';
     toast.style.left = '10px';
-    toast.style.background = 'rgba(0,0,0,0.8)';
+    toast.style.background = status === 'match' ? '#d32f2f' : 'rgba(0,0,0,0.8)';
     toast.style.color = 'white';
-    toast.style.padding = '5px 10px';
-    toast.style.fontSize = '10px';
+    toast.style.padding = '8px 12px';
+    toast.style.fontSize = '12px';
     toast.style.borderRadius = '4px';
     toast.style.zIndex = '1000000';
     toast.style.pointerEvents = 'none';
-    toast.textContent = `Vinegar Scanned: "${text.substring(0, 30)}..."`;
+    toast.style.fontFamily = 'sans-serif';
+    
+    let message = `Vinegar Scanned: "${text.substring(0, 20)}..."`;
+    if (status === 'match') message += " (⚠️ MATCH FOUND)";
+    else if (status === 'safe') message += " (✅ Safe/No Match)";
+    else if (status === 'loading') message += " (⏳ Loading Data...)";
+    
+    toast.textContent = message;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
-
-  function injectOverlay(matchData, productName) {
-    if (document.getElementById('vinegar-overlay')) return;
-    
-    // ... existing overlay code ...
-    const overlay = document.createElement('div');
-    overlay.id = 'vinegar-overlay';
-    
-    const parentName = matchData.parentCompany.name;
-    const reason = matchData.parentCompany.reason;
-
-    overlay.innerHTML = `
-      <span class="vinegar-close">&times;</span>
-      <h3>⚠️ Warning: ${parentName}</h3>
-      <p>
-        The product <strong>"${matchData.matchedBrand}"</strong> is owned by <strong>${parentName}</strong>.
-        <br><br>
-        <em>Reason: ${reason}</em>
-      </p>
-      <a href="https://www.google.com/search?q=${encodeURIComponent(productName + ' ethical alternative')}" target="_blank" class="vinegar-btn">
-        Find Ethical Alternatives
-      </a>
-    `;
-
-    document.body.appendChild(overlay);
-    overlayInjected = true;
-
-    overlay.querySelector('.vinegar-close').addEventListener('click', () => {
-      overlay.remove();
-      // Prevent re-injection for this session
-      overlayInjected = true; 
-    });
+    setTimeout(() => toast.remove(), 5000);
   }
 
   function runScan() {
-    if (overlayInjected) return; // Don't keep scanning if we found it
+    if (overlayInjected) return; 
 
     const productTitle = getProductTitle();
     if (productTitle) {
-      // showDebugToast(productTitle); // Uncomment to debug every scan
+      if (!detector.isLoaded) {
+        showDebugToast(productTitle, 'loading');
+        return;
+      }
+
       const match = detector.check(productTitle, blockedIds);
       
       if (match) {
         console.log('Vinegar: Match found!', match);
+        showDebugToast(productTitle, 'match');
         injectOverlay(match, productTitle);
+      } else {
+        // Only show "Safe" toast if we actually have a title but found nothing
+        // This helps debug if it's a regex fail
+        showDebugToast(productTitle, 'safe');
       }
     }
   }
 
   // 1. Run immediately
-  const initialTitle = getProductTitle();
-  if (initialTitle) showDebugToast(initialTitle);
-  runScan();
+  // Retry a few times to wait for data load
+  let retries = 0;
+  const initInterval = setInterval(() => {
+    if (detector.isLoaded) {
+      runScan();
+      clearInterval(initInterval);
+    } else {
+      retries++;
+      if (retries > 10) clearInterval(initInterval); // Give up after 2s
+    }
+  }, 200);
 
   // 2. Run on mutations (for SPAs like Walmart/Target)
   const observer = new MutationObserver((mutations) => {

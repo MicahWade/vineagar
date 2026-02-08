@@ -1,22 +1,22 @@
 #vinegar-overlay {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 300px;
+  bottom: 30px;
+  right: 30px;
+  width: 340px; /* Increased from 300px */
   background-color: #fff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border-radius: 8px;
-  padding: 16px;
-  z-index: 999999;
+  border: 1px solid #dcdcdc;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 2147483647; /* Max Z-Index */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   animation: slideIn 0.3s ease-out;
 }
 
 #vinegar-overlay h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #d32f2f; /* Warning Red */
+  margin: 0 0 10px 0;
+  font-size: 18px; /* Increased */
+  color: #d32f2f;
   display: flex;
   align-items: center;
 }
