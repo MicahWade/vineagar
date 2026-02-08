@@ -174,8 +174,25 @@
     });
   }
 
+  function isSearchPage() {
+    const url = window.location.href;
+    const path = window.location.pathname;
+    
+    // Amazon: /s?k=...
+    if (path.includes('/s') && url.includes('k=')) return true;
+    
+    // Walmart: /search?q=... or /search
+    if (path.includes('/search')) return true;
+
+    // Target: /s?searchTerm=...
+    if (path === '/s') return true;
+    
+    return false;
+  }
+
   function runScan() {
-    if (overlayInjected) return; 
+    if (overlayInjected) return;
+    if (isSearchPage()) return; // Skip scanning on search results
 
     const productTitle = getProductTitle();
     if (productTitle) {
