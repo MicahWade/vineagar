@@ -48,15 +48,21 @@ class BrandDetector {
 
       // Check specific brands owned by the company
       for (const brand of company.brands) {
-        // Simple inclusion check. In production, this needs regex for word boundaries
-        // to avoid partial matches (e.g. "grape" matching "ape").
-        // Using a regex with word boundaries for better accuracy:
-        const regex = new RegExp(`\b${brand}\b`, 'i');
-        if (regex.test(lowerText)) {
-          return {
-            matchedBrand: brand,
-            parentCompany: company
-          };
+        // robust matching: normalize both to lowercase
+        const cleanBrand = brand.toLowerCase().trim();
+        
+        // MVP: Simple inclusion check (e.g. does "Pepsi Soda" contain "pepsi")
+        // This is safer than regex for now to avoid boundary issues with punctuation
+        if (lowerText.includes(cleanBrand)) {
+             // specific check to avoid "grape" matching "ape"
+             // only match if surrounded by space or start/end of string
+             const regex = new RegExp(`(^|\s|\W)${cleanBrand}($|\s|\W)`, 'i');
+             if (regex.test(lowerText)) {
+                return {
+                    matchedBrand: brand,
+                    parentCompany: company
+                };
+             }
         }
       }
     }

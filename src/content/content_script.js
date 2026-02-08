@@ -53,10 +53,10 @@
     toast.style.pointerEvents = 'none';
     toast.style.fontFamily = 'sans-serif';
     
-    let message = `Vinegar Scanned: "${text.substring(0, 20)}..."`;
-    if (status === 'match') message += " (⚠️ MATCH FOUND)";
-    else if (status === 'safe') message += " (✅ Safe/No Match)";
-    else if (status === 'loading') message += " (⏳ Loading Data...)";
+    let message = `Vinegar Scanned: "${text.substring(0, 15)}..."`;
+    if (status === 'match') message += " (⚠️ MATCH)";
+    else if (status === 'safe') message += ` (✅ Safe | Active: ${blockedIds.length})`;
+    else if (status === 'loading') message += " (⏳ Loading...)";
     
     toast.textContent = message;
     document.body.appendChild(toast);
