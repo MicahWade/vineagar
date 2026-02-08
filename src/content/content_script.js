@@ -101,10 +101,12 @@
   }, 200);
 
   // 2. Run on mutations (for SPAs like Walmart/Target)
+  let debounceTimer;
   const observer = new MutationObserver((mutations) => {
-    // Throttling: only scan if something significant changed
-    // For now, just running scan is cheap enough text lookup
-    runScan();
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      runScan();
+    }, 1500); // Only scan once the page stops changing for 1.5 seconds
   });
 
   observer.observe(document.body, {
