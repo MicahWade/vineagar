@@ -71,7 +71,7 @@
     const host = document.createElement('div');
     host.id = 'vinegar-shadow-host';
     host.style.position = 'fixed';
-    host.style.bottom = '30px';
+    host.style.top = '110px'; // Top right (below standard headers)
     host.style.right = '30px';
     host.style.zIndex = '2147483647'; // Max Z-Index
     host.style.width = '340px';
@@ -180,7 +180,7 @@
     const productTitle = getProductTitle();
     if (productTitle) {
       if (!detector.isLoaded) {
-        showDebugToast(productTitle, 'loading');
+        // showDebugToast(productTitle, 'loading');
         return;
       }
 
@@ -188,7 +188,7 @@
       
       if (match) {
         console.log('Vinegar: Match found!', match);
-        showDebugToast(productTitle, 'match');
+        // showDebugToast(productTitle, 'match');
         injectOverlay(match, productTitle);
         
         // Notify background script to update icon
@@ -198,8 +198,7 @@
         });
       } else {
         // Only show "Safe" toast if we actually have a title but found nothing
-        // This helps debug if it's a regex fail
-        showDebugToast(productTitle, 'safe');
+        // showDebugToast(productTitle, 'safe');
       }
     }
   }
