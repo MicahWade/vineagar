@@ -22,25 +22,44 @@
       // Walmart selectors are tricky and change often. Try multiple.
       const el = document.querySelector('h1[itemprop="name"]') || 
                  document.querySelector('h1#main-title') ||
-                 document.querySelector('[data-testid="product-title"]'); 
+                 document.querySelector('[data-testid="product-title"]') ||
+                 document.querySelector('h1'); // Generic Fallback
       if (el) title = el.innerText.trim();
     } else if (host.includes('target')) {
       const el = document.querySelector('[data-test="product-title"]');
       if (el) title = el.innerText.trim();
     }
     
-    // Fallback: Check document title if specific element not found
+    // Fallback: Check document title
     if (!title && document.title) {
-      // Walmart titles often end with " - Walmart.com"
       title = document.title.replace(' - Walmart.com', '');
     }
 
     return title;
   }
 
+  // DEBUG: Visual confirmation that the script is running
+  function showDebugToast(text) {
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '10px';
+    toast.style.left = '10px';
+    toast.style.background = 'rgba(0,0,0,0.8)';
+    toast.style.color = 'white';
+    toast.style.padding = '5px 10px';
+    toast.style.fontSize = '10px';
+    toast.style.borderRadius = '4px';
+    toast.style.zIndex = '1000000';
+    toast.style.pointerEvents = 'none';
+    toast.textContent = `Vinegar Scanned: "${text.substring(0, 30)}..."`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
   function injectOverlay(matchData, productName) {
     if (document.getElementById('vinegar-overlay')) return;
-
+    
+    // ... existing overlay code ...
     const overlay = document.createElement('div');
     overlay.id = 'vinegar-overlay';
     
@@ -75,7 +94,7 @@
 
     const productTitle = getProductTitle();
     if (productTitle) {
-      // console.log(`Vinegar: Scanning "${productTitle}"...`); // Noise reduction
+      // showDebugToast(productTitle); // Uncomment to debug every scan
       const match = detector.check(productTitle, blockedIds);
       
       if (match) {
@@ -86,6 +105,8 @@
   }
 
   // 1. Run immediately
+  const initialTitle = getProductTitle();
+  if (initialTitle) showDebugToast(initialTitle);
   runScan();
 
   // 2. Run on mutations (for SPAs like Walmart/Target)
