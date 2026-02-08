@@ -30,10 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       const isChecked = blocked.includes(company.id);
 
+      // Using the "switch" class structure for the CSS toggle
       div.innerHTML = `
-        <label style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer;">
-          <span>Avoid ${company.name}</span>
+        <span>${company.name}</span>
+        <label class="switch">
           <input type="checkbox" data-id="${company.id}" ${isChecked ? 'checked' : ''}>
+          <span class="slider"></span>
         </label>
       `;
       container.appendChild(div);
@@ -52,15 +54,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         await chrome.storage.sync.set({ 'blocked_companies': newBlocked });
         
-        // Brief visual feedback
-        const note = document.querySelector('.note');
-        const originalText = note.innerText;
-        note.innerText = '✅ Settings saved!';
-        note.style.color = 'green';
-        setTimeout(() => {
-          note.innerText = originalText;
-          note.style.color = '#666';
-        }, 1500);
+        // Show Toast
+        const toast = document.getElementById('toast');
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
       }
     });
 

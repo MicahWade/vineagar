@@ -1,0 +1,145 @@
+:root {
+  --bg-color: #fcfbf7; /* Cream/Off-white */
+  --text-primary: #2b2b2b;
+  --text-secondary: #666;
+  --brand-green: #388e3c; /* Forest Green */
+  --brand-red: #d32f2f;
+  --border-color: #e0e0e0;
+  --toggle-off: #ccc;
+  --toggle-on: #388e3c;
+}
+
+body {
+  width: 320px;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  background-color: var(--brand-green);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.content {
+  padding: 20px;
+}
+
+p.subtitle {
+  margin-top: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* Custom Toggle Switch */
+.toggle-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toggle-group:last-child {
+  border-bottom: none;
+}
+
+.toggle-group span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Hidden checkox */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--toggle-off);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .slider {
+  background-color: var(--toggle-on);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Toast Notification */
+#toast {
+  visibility: hidden;
+  min-width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 10px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s, bottom 0.3s;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 30px;
+}
+
+footer {
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  padding: 10px 20px 20px;
+  border-top: 1px solid var(--border-color);
+  background-color: #fafafa;
+}
