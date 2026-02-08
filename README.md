@@ -1,104 +1,61 @@
-# Vinegar - Browser Extension Technical Specification
+# Vinegar
 
-## 1. Concept Overview
-"Vinegar" is a browser extension designed to empower ethical consumerism. It acts as an "anti-monopoly" tool, detecting products owned by blocked parent companies (conglomerates) and suggesting alternatives from independent or ethically aligned sources. It also redirects users from major marketplaces (like Amazon) to independent retailers.
+> *"It's supposed to be almost the opposite of Honey... helping people traverse through that is kind of the idea of Vinegar."* — Luke Lafreniere
 
-## 2. Architecture (Manifest V3)
+**Vinegar** is an open-source browser extension designed to transparency to online shopping. While other extensions help you find the cheapest price, Vinegar helps you find the **ethical price**.
 
-The extension uses the **Manifest V3** standard.
+It reveals the hidden parent companies behind consumer brands and offers local or independent alternatives to Amazon listings, allowing users to vote with their wallets based on the causes they care about.
 
-*   **Manifest (`manifest.json`):** Defines permissions (`storage`, `activeTab`, `scripting`), host permissions (for matching product pages), and entry points.
-*   **Service Worker (`background.js`):** Handles installation events, updates data definitions from a remote source (future state), and manages context menu interactions.
-*   **Content Scripts (`content_script.js`):** Runs on specific shopping domains (e.g., amazon.com, walmart.com) and generic pages to scan for brand names. Injects the UI overlay.
-*   **Popup (`popup.html`/`popup.js`):** User interface for configuration (toggling "Movements").
-*   **Data Layer:** JSON files stored locally (bundled) or in `chrome.storage.local` for dynamic updates.
+##  The Mission
 
-## 3. Data Structure
+Most consumer goods are owned by a small handful of massive conglomerates. The illusion of choice makes it difficult to avoid companies you disagree with. Vinegar solves this by:
 
-### 3.1 Parent Company Database (`companies.json`)
-A hierarchical map linking parent companies to their brands.
+1. **De-mystifying Ownership:** Instantly showing you if that "indie" brand is actually owned by a giant you want to avoid (e.g., Nestlé, Unilever).
+2. **Supporting Independents:** Redirecting traffic from major monopolies (like Amazon) to smaller, independent, or local retailers carrying the same SKU.
+3. **Personalized Activism:** Recognizing that everyone has different battles. You toggle what you care about; we filter the rest.
 
-```json
-{
-  "companies": {
-    "Nestle": {
-      "id": "nestle",
-      "categories": ["food", "beverage", "petcare"],
-      "brands": [
-        "DiGiorno",
-        "San Pellegrino",
-        "Toll House",
-        "Nespresso",
-        "KitKat",
-        "Purina"
-      ],
-      "reason": "Water usage controversies, labor practices"
-    },
-    "Unilever": {
-      "id": "unilever",
-      "brands": ["Dove", "Ben & Jerry's", "Hellmann's"]
-    }
-  }
-}
-```
+##  Key Features
 
-### 3.2 User Settings (Storage)
-Persisted in `chrome.storage.sync`.
+### 1. The "De-Amazonifier"
 
-```json
-{
-  "blocked_companies": ["nestle", "unilever"],
-  "movements": {
-    "support_local": true,
-    "avoid_fast_fashion": true
-  }
-}
-```
+When viewing a product on Amazon, Vinegar scrapes the product title/SKU and searches for that exact item on a whitelist of independent retailers and local brick-and-mortar store inventories.
 
-## 4. Core Logic Flows
+* *Status:* 🚧 In Development
 
-### 4.1 Brand Detection (The "Corporate Web" Filter)
-1.  **Trigger:** Page load on supported URL.
-2.  **Extraction:** Content script parses the Product Title (e.g., `#productTitle` on Amazon) or Brand Metadata (structured data `application/ld+json`).
-3.  **Normalization:** Text is tokenized and matched against the loaded `companies.json` index.
-4.  **Action:** If a match is found AND the parent company is in the user's block list, trigger the **Overlay**.
+### 2. Corporate Genealogy (The "Nestlé Toggle")
 
-### 4.2 The "Amazon Alternative" Logic
-1.  **Trigger:** User is on a product page of a massive retailer (Amazon).
-2.  **Search:** Extract the specific product name/model.
-3.  **Resolution:**
-    *   *Primary:* Check against a whitelist of "Ethical Alternatives" (mapped by category).
-    *   *Secondary:* Construct a search query for independent engines (e.g., searching DuckDuckGo with site filters or specific independent store queries).
-    *   *Note:* Direct scraping of other retailers is brittle. The MVP uses "Search Link Generation" to redirect the user to a search result for that product on an independent platform (e.g., Bookshop.org for books).
+A community-maintained database maps thousands of subsidiary brands to their ultimate parent companies.
 
-## 5. UI/UX
-*   **Popup:** Simple toggle switches for "Avoid [Company]" and specific movements.
-*   **Overlay:** A non-intrusive floating pill in the bottom-right or injected near the "Buy Now" button.
-    *   *State A (Warning):* "⚠️ This product is owned by [Parent Company]."
-    *   *State B (Alternative):* "🌱 Find this on [Independent Store]."
+* **User Action:** Toggle "Avoid Nestlé" in settings.
+* **Extension Action:** Warns you when viewing a Digiorno pizza or San Pellegrino water.
 
-## 6. File Structure
-```text
-/vinegar
-  /icons
-    icon16.png
-    icon48.png
-    icon128.png
-  /data
-    companies.json
-  /src
-    /background
-      service-worker.js
-    /content
-      content_script.js
-      scanner.js
-      ui_injector.js
-      styles.css
-    /popup
-      popup.html
-      popup.js
-      popup.css
-    /utils
-      storage.js
-  manifest.json
-```
+### 3. "Pick Your Battles" Dashboard
+
+Not everyone boycotts the same things. Vinegar offers a modular settings page where you can toggle specific "Movements":
+
+* 🚫 Anti-Monopoly
+* 🌍 Environmental / Carbon Footprint
+* 🏭 Anti-Fast Fashion
+* 🏙️ Support Local Business
+
+## 🛠️ Technical Overview
+
+* **Manifest V3:** Built for modern Chrome/Firefox/Edge standards.
+* **Privacy First:** No affiliate tracking. No user data harvesting. All processing happens client-side or via anonymous lookups.
+* **Community Database:** The brand-to-parent mapping is a JSON-based open data project located in `/data/brand_map.json`. We need help filling this out!
+
+## 🤝 Contributing
+
+This project was pitched as a concept on **The WAN Show (Feb 2026)**. We need developers, data architects, and researchers to make it real.
+
+### Areas where we need help:
+
+* **Scrapers:** Logic to reliably find Amazon alternatives on Shopify/WooCommerce sites.
+* **Data Entry:** Expanding the `brands.json` file to link subsidiaries to parent corps.
+* **UI/UX:** Designing a non-intrusive overlay (The "Vinegar Label").
+
+## 📜 License
+
+[MIT](https://www.google.com/search?q=LICENSE) © 2026 Community Contributors.
+
+*Note: This project is a fan-made initiative inspired by Luke Lafreniere's concept. It is not officially affiliated with LMG.*
