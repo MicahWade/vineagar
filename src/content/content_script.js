@@ -11,56 +11,47 @@
   let scanAttempts = 0;
   let overlayInjected = false;
 
-  function getProductTitle() {
-    let title = '';
-    const host = window.location.hostname;
-
-    if (host.includes('amazon')) {
-      const el = document.getElementById('productTitle');
-      if (el) title = el.innerText.trim();
-    } else if (host.includes('walmart')) {
-      // Walmart selectors are tricky and change often. Try multiple.
-      const el = document.querySelector('h1[itemprop="name"]') || 
-                 document.querySelector('h1#main-title') ||
-                 document.querySelector('[data-testid="product-title"]') ||
-                 document.querySelector('h1'); // Generic Fallback
-      if (el) title = el.innerText.trim();
-    } else if (host.includes('target')) {
-      const el = document.querySelector('[data-test="product-title"]');
-      if (el) title = el.innerText.trim();
-    }
+  function isSearchPage() {
+    const url = window.location.href.toLowerCase();
     
-    // Fallback: Check document title
-    if (!title && document.title) {
-      title = document.title.replace(' - Walmart.com', '');
-    }
+    // Common search/listing patterns
+    const indicators = ['/search', '/s?', '/browse', '/category', '/aisle', '/shop', '/c/', '/groceries/'];
+    if (indicators.some(i => url.includes(i))) return true;
 
-    return title;
+    // Specific query parameters
+    if (url.includes('?q=') || url.includes('&q=') || url.includes('?k=') || url.includes('?search=') || url.includes('searchTerm=')) return true;
+    
+    return false;
   }
 
-  // DEBUG: Visual confirmation that the script is running
-  function showDebugToast(text, status) {
-    const toast = document.createElement('div');
-    toast.style.position = 'fixed';
-    toast.style.bottom = '10px';
-    toast.style.left = '10px';
-    toast.style.background = status === 'match' ? '#d32f2f' : 'rgba(0,0,0,0.8)';
-    toast.style.color = 'white';
-    toast.style.padding = '8px 12px';
-    toast.style.fontSize = '12px';
-    toast.style.borderRadius = '4px';
-    toast.style.zIndex = '1000000';
-    toast.style.pointerEvents = 'none';
-    toast.style.fontFamily = 'sans-serif';
-    
-    let message = `Vinegar Scanned: "${text.substring(0, 15)}..."`;
-    if (status === 'match') message += " (⚠️ MATCH)";
-    else if (status === 'safe') message += ` (✅ Safe | Active: ${blockedIds.length})`;
-    else if (status === 'loading') message += " (⏳ Loading...)";
-    
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+  function getProductTitle() {
+    // Priority 1: Specific Selectors (for complex SPAs that might hide H1s)
+    const host = window.location.hostname;
+    if (host.includes('amazon')) {
+       const el = document.getElementById('productTitle');
+       if (el) return el.innerText.trim();
+    }
+
+    // Priority 2: Standard HTML H1 (Best for SEO-optimized sites like Woolworths, Tesco)
+    const h1 = document.querySelector('h1');
+    if (h1 && h1.innerText.trim().length > 0) {
+        return h1.innerText.trim();
+    }
+
+    // Priority 3: OpenGraph / Meta Tags (Universal fallback)
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle && ogTitle.content) return ogTitle.content.trim();
+
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle && twitterTitle.content) return twitterTitle.content.trim();
+
+    // Priority 4: Document Title cleanup
+    if (document.title) {
+        // Remove common suffixes like " | Walmart", " - Coles Online"
+        return document.title.split('|')[0].split('-')[0].trim();
+    }
+
+    return '';
   }
 
   function injectOverlay(matchData, productName) {
@@ -174,38 +165,18 @@
     });
   }
 
-  function isSearchPage() {
-    const url = window.location.href;
-    const path = window.location.pathname;
-    
-    // Amazon: /s?k=...
-    if (path.includes('/s') && url.includes('k=')) return true;
-    
-    // Walmart: /search?q=... or /search
-    if (path.includes('/search')) return true;
-
-    // Target: /s?searchTerm=...
-    if (path === '/s') return true;
-    
-    return false;
-  }
-
   function runScan() {
     if (overlayInjected) return;
     if (isSearchPage()) return; // Skip scanning on search results
 
     const productTitle = getProductTitle();
     if (productTitle) {
-      if (!detector.isLoaded) {
-        // showDebugToast(productTitle, 'loading');
-        return;
-      }
+      if (!detector.isLoaded) return;
 
       const match = detector.check(productTitle, blockedIds);
       
       if (match) {
         console.log('Vinegar: Match found!', match);
-        // showDebugToast(productTitle, 'match');
         injectOverlay(match, productTitle);
         
         // Notify background script to update icon
@@ -213,9 +184,6 @@
             type: "MATCH_FOUND", 
             text: "!" 
         });
-      } else {
-        // Only show "Safe" toast if we actually have a title but found nothing
-        // showDebugToast(productTitle, 'safe');
       }
     }
   }
