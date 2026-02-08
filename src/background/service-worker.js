@@ -19,3 +19,17 @@ chrome.runtime.onInstalled.addListener(() => {
     }
   });
 });
+
+// Listen for messages from content scripts
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "MATCH_FOUND") {
+    chrome.action.setBadgeText({
+      text: message.text,
+      tabId: sender.tab.id
+    });
+    chrome.action.setBadgeBackgroundColor({
+      color: "#d32f2f",
+      tabId: sender.tab.id
+    });
+  }
+});
